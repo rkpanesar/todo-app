@@ -1,5 +1,5 @@
 import  {createContext } from "react";
-import {type TodoState } from '../types/Todo'
+import {type TodoState, type Todo } from '../types/Todo'
 
 const initialState: TodoState = {
   todos: [],
@@ -12,13 +12,15 @@ export const TodoContext = createContext<{
     addTodo: (title: string) => void,
     toggleTodo: (id:string, isCompleted: boolean) => void,
     editTodo: (id:string, title:string) => void,
-    deleteTodoItem: (id:string) => void
+    deleteTodoItem: (id:string) => void,
+    addPendingTodoItem: (payload: Todo) => void,
 }>({
     todoState: initialState,
     addTodo: () => {},
     toggleTodo: () => {},
     editTodo: () => {},
     deleteTodoItem:() => {},
+    addPendingTodoItem: () => {},
 });
 
 

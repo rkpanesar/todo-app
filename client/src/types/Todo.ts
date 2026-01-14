@@ -1,3 +1,5 @@
+import type { FilterState, SortOption } from "./FilteringAndSorting";
+
 export interface Todo {
     _id: string;
     title: string;
@@ -14,8 +16,12 @@ export type TodoState = {
 
 export type TodoAction = 
     | { type: "ADD"; payload: Todo }
+    | { type: "ADD_PENDING"; payload: Todo}
     | { type: "DELETE"; payload: string }
+    | { type: "DELETE_PENDING"; payload: string}
     | { type: "LOADING"}
     | { type: "UPDATE"; payload: Todo}
     | { type: "ERROR"; payload: string}
     | { type: "FETCH"; payload: Todo[]}
+    | { type: "SET_FILTER"; payload: Partial<FilterState>}
+    | { type: "SET_SORT"; payload: SortOption}

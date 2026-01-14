@@ -1,29 +1,26 @@
-import { useContext, useState } from "react";
+import { useContext} from "react";
 import { TodoContext } from "../contexts/TodoContext";
+import type { Todo } from "../types/Todo";
 
 const AddTodoItem = () => {
-    const [title, setTitle] = useState('');
-    const {addTodo} = useContext(TodoContext);
+    const {addPendingTodoItem} = useContext(TodoContext);
+    const handleAddClick = () => {
+        const pendingTodo: Todo = {
+            _id: "-1",
+            title: "",
+            completed: false,
+            createdAt: new Date()
+        } 
 
-    const handleSubmit = (e:React.FormEvent) => {
-        e.preventDefault();
-        if(!title.trim()) return;
-        addTodo(title);
-        setTitle('');
-    };
+        addPendingTodoItem(pendingTodo);
+    }
 
     return (
-        <form onSubmit={handleSubmit} className="flex gap-2 mb-4">
-            <input
-                className="border p-2 rounded w-full"
-                placeholder="Type here..."
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-            />
-            <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">
-                Add
+        <>
+            <button onClick={handleAddClick} className="block mb-3 p-2 border rounded bg-blue-600">
+                Add To-Do
             </button>
-        </form>
+        </>
     )
 }
 

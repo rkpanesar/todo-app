@@ -2,6 +2,8 @@ import type React from "react"
 import type { Todo } from "../types/Todo"
 import { useContext, useState } from "react"
 import { TodoContext } from "../contexts/TodoContext"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faEdit, faTrash, faSave } from "@fortawesome/free-solid-svg-icons"
 
 type Props = {
     todo: Todo
@@ -11,13 +13,18 @@ const TodoItem:React.FC<Props> = ({
     todo
 }) => {
 
-    const [isInEditMode, setIsInEditMode] = useState(false);
+    const [isInEditMode, setIsInEditMode] = useState(todo._id === "-1" ? true : false);
     const [updatedTitle, setUpdatedTitle] = useState(todo.title);
-    const {editTodo, deleteTodoItem, toggleTodo} = useContext(TodoContext);
+    const {addTodo, editTodo, deleteTodoItem, toggleTodo} = useContext(TodoContext);
+
 
     const saveUpdates = (id: string) => {
-        if(updatedTitle !== todo.title) {    
-            editTodo(id, updatedTitle);   
+        if(todo._id === "-1") addTodo(updatedTitle);
+        
+        else {
+            if(updatedTitle !== todo.title) {    
+                editTodo(id, updatedTitle);
+            }
         }
 
         setIsInEditMode(!isInEditMode);
@@ -45,7 +52,7 @@ const TodoItem:React.FC<Props> = ({
                     {
                         !isInEditMode && (
                             <span 
-                                className={todo.completed ? "line-through text-3xl" : "text-3xl"}
+                                className={todo.completed ? "line-through text-2xl" : "text-2xl"}
                                 onClick={() => setIsInEditMode(true)}
                             >{updatedTitle}</span>
                         )
@@ -55,26 +62,27 @@ const TodoItem:React.FC<Props> = ({
                     {
                         isInEditMode && (
                             <button 
-                                className="text-white p-2 m-1 rounded bg-green-600"
+                                className="text-white p-2 m-1 rounded bg-green-500"
                                 onClick={() => saveUpdates(todo._id)}
                             >
-                            Save
+                                <FontAwesomeIcon icon={faSave}/>
                             </button>       
                         )
                     }
                     {
                         !isInEditMode && (
                             <button 
-                                className="text-white p-2 m-1 rounded bg-green-600"
+                                className="text-white p-2 m-1 rounded bg-green-500"
                                 onClick={() => setIsInEditMode(!isInEditMode)}
                             >
-                            Edit
+                                <FontAwesomeIcon icon={faEdit}/>
                             </button>
                         )
                     }
 
-                    <button className="text-white p-2 m-1 rounded bg-red-600"
-                        onClick={() => deleteTodoItem(todo._id)}>Delete
+                    <button className="text-white p-2 m-1 rounded bg-red-500"
+                        onClick={() => deleteTodoItem(todo._id)}>
+                            <FontAwesomeIcon icon={faTrash}/>
                     </button>
                 </div>
             </div>

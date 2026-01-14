@@ -9,10 +9,6 @@ const TodoList = () => {
         return <p>Loading...</p>
     }
 
-    if(todoState.error) {
-        return <p className="text-red">Error: todosState.error</p>
-    }
-
     return (
         <div>
             {todoState.todos.map(t => (
