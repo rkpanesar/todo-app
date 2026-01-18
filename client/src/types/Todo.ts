@@ -1,15 +1,27 @@
-import type { FilterState, SortOption } from "./FilteringAndSorting";
-
 export interface Todo {
     _id: string;
     title: string;
     // description?: string;
     completed: boolean;
     createdAt: Date;
+    isNew?: boolean;
 }
+
+export type FilterState = {
+    search: string;
+    status: "all" | "completed" | "pending"
+}
+
+export type SortOption =
+    | "created-asc"
+    | "created-desc"
+    | "title-asc"
+    | "title-desc";
 
 export type TodoState = {
     todos: Todo[];
+    filters: FilterState;
+    sort: SortOption;
     loading: boolean;
     error: string | null;
 }
@@ -25,3 +37,4 @@ export type TodoAction =
     | { type: "FETCH"; payload: Todo[]}
     | { type: "SET_FILTER"; payload: Partial<FilterState>}
     | { type: "SET_SORT"; payload: SortOption}
+    | {type: "REPLACE_TEMP_TODO"; payload: {tempId: string, realTodo: Todo}}

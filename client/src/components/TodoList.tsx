@@ -3,7 +3,7 @@ import TodoItem from "./TodoItem";
 import { TodoContext } from "../contexts/TodoContext";
 
 const TodoList = () => {
-    const {todoState} = useContext(TodoContext);
+    const {todoState, filteredAndSortedTodos} = useContext(TodoContext);
 
     if(todoState.loading) {
         return <p>Loading...</p>
@@ -11,7 +11,7 @@ const TodoList = () => {
 
     return (
         <div>
-            {todoState.todos.map(t => (
+            {filteredAndSortedTodos.map(t => (
                 <TodoItem key={t._id} todo={t}/>
             ))}
         </div>

@@ -4,12 +4,15 @@ import type { Todo } from "../types/Todo";
 
 const AddTodoItem = () => {
     const {addPendingTodoItem} = useContext(TodoContext);
+
+
     const handleAddClick = () => {
         const pendingTodo: Todo = {
             _id: "-1",
             title: "",
             completed: false,
-            createdAt: new Date()
+            createdAt: new Date(),
+            isNew: true,
         } 
 
         addPendingTodoItem(pendingTodo);
@@ -17,7 +20,7 @@ const AddTodoItem = () => {
 
     return (
         <>
-            <button onClick={handleAddClick} className="block mb-3 p-2 border rounded bg-blue-600">
+            <button onClick={handleAddClick} className="block mb-3 p-2 border rounded bg-[#145882]">
                 Add To-Do
             </button>
         </>
