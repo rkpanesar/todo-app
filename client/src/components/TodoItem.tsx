@@ -1,9 +1,12 @@
 import type React from "react"
 import type { Todo } from "../types/Todo"
-import { useContext, useState } from "react"
-import { TodoContext } from "../contexts/TodoContext"
+import { useState } from "react"
+//import { TodoContext } from "../contexts/TodoContext"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faEdit, faTrash, faSave, faXmark } from "@fortawesome/free-solid-svg-icons"
+import { useDispatch } from "react-redux"
+import { type AppDispatch } from "../store/todoStore"
+import { createTodo, deleteTodo, fetchTodo, replacePendingTodoItem, toggleTodo, updateTodo } from "../contexts/todoSlice"
 
 type Props = {
     todo: Todo
@@ -15,15 +18,20 @@ const TodoItem:React.FC<Props> = ({
 
     const [isInEditMode, setIsInEditMode] = useState(todo._id.includes("temp") ? true : false);
     const [updatedTitle, setUpdatedTitle] = useState(todo.title);
-    const {getTodo, addTodo, editTodo, deleteTodoItem, toggleTodo} = useContext(TodoContext);
+   // const {getTodo, addTodo, editTodo, deleteTodoItem, toggleTodo} = useContext(TodoContext);
+    const dispatch = useDispatch<AppDispatch>();
 
 
-    const saveUpdates = (id: string) => {
-        if(todo.isNew) addTodo(updatedTitle, id);
+    const saveUpdates = async (id: string) => {
+        if(todo._id.includes("temp")) {
+           await dispatch(createTodo({title: updatedTitle}));
+           dispatch(replacePendingTodoItem(id));
+        }//addTodo(updatedTitle, id);
         
         else {
             if(updatedTitle !== todo.title) {    
-                editTodo(id, updatedTitle);
+               // editTodo(id, updatedTitle);
+               await dispatch(updateTodo({id, title: updatedTitle}));
             }
         }
 
@@ -39,7 +47,7 @@ const TodoItem:React.FC<Props> = ({
                         name={"checkbox-completed-"+todo._id}
                         type="checkbox" 
                         checked={todo.completed} 
-                        onChange={(e) => {toggleTodo(todo._id, e.target.checked)}}
+                        onChange={async(e) => {await dispatch(toggleTodo({id: todo._id, isCompleted: e.target.checked}))}}
                     />
                     {isInEditMode && (
                         <input
@@ -74,7 +82,7 @@ const TodoItem:React.FC<Props> = ({
                                     <FontAwesomeIcon icon={faSave}/>
                                 </button>
                                 <button className="text-white p-2 m-1 rounded bg-[#883333]"
-                                    onClick={() => getTodo()}>
+                                    onClick={async () => await dispatch(fetchTodo())}>
                                     <FontAwesomeIcon icon={faXmark}/>
                                 </button>
                             </>       
@@ -90,7 +98,7 @@ const TodoItem:React.FC<Props> = ({
                                     <FontAwesomeIcon icon={faEdit}/>
                                 </button>
                                 <button className="text-white p-2 m-1 rounded bg-[#883333]"
-                                    onClick={() => deleteTodoItem(todo._id)}>
+                                    onClick={async () => await dispatch(deleteTodo({id: todo._id}))}>
                                     <FontAwesomeIcon icon={faTrash}/>
                                 </button>
                             </>

@@ -1,9 +1,13 @@
-import { useContext} from "react";
-import { TodoContext } from "../contexts/TodoContext";
+// import { useContext} from "react";
+// import { TodoContext } from "../contexts/TodoContext";
 import type { Todo } from "../types/Todo";
+import { useDispatch } from "react-redux";
+import {type AppDispatch } from "../store/todoStore";
+import { addPendingTodoItem } from "../contexts/todoSlice";
 
 const AddTodoItem = () => {
-    const {addPendingTodoItem} = useContext(TodoContext);
+    //const {addPendingTodoItem} = useContext(TodoContext);
+    const dispatch = useDispatch<AppDispatch>();
 
 
     const handleAddClick = () => {
@@ -11,11 +15,11 @@ const AddTodoItem = () => {
             _id: "-1",
             title: "",
             completed: false,
-            createdAt: new Date(),
+            createdAt: Date.now(),
             isNew: true,
         } 
 
-        addPendingTodoItem(pendingTodo);
+        dispatch(addPendingTodoItem(pendingTodo));
     }
 
     return (

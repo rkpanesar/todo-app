@@ -3,7 +3,7 @@ export interface Todo {
     title: string;
     // description?: string;
     completed: boolean;
-    createdAt: Date;
+    createdAt: number;
     isNew?: boolean;
 }
 
@@ -38,3 +38,8 @@ export type TodoAction =
     | { type: "SET_FILTER"; payload: Partial<FilterState>}
     | { type: "SET_SORT"; payload: SortOption}
     | {type: "REPLACE_TEMP_TODO"; payload: {tempId: string, realTodo: Todo}}
+
+export type User = {
+    username: string;
+    // add more user fields as needed
+};

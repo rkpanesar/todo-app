@@ -1,10 +1,13 @@
-import React, { useEffect, useMemo, useReducer } from "react";
-import { type TodoAction,type TodoState, type Todo, type FilterState, type SortOption } from '../types/Todo'
+import React, { useEffect, useMemo, useReducer, useState } from "react";
+import { type TodoAction,type TodoState, type Todo, type FilterState, type SortOption, type User } from '../types/Todo'
+
 import { 
-    fetchTodos,
-    createTodo,
-    updateTodo,
-    deleteTodo,
+    fetchTodosAPI,
+    createTodoAPI,
+    updateTodoAPI,
+    deleteTodoAPI,
+    login as apiLogin,
+    logout as apiLogout,
 } from "../api/todoApi";
 import { TodoContext } from "./TodoContext";
 import { Slide, toast, ToastContainer } from "react-toastify";
@@ -22,6 +25,8 @@ const initialState: TodoState = {
 
 export function TodoProvider({children}:{children:React.ReactNode}) {
     const [todosState, dispatch] = useReducer(todosReducer, initialState);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [user, setUser] = useState<User | null>(null);
     
     const filteredAndSortedTodos = useMemo(() => {
         const result = [...todosState.todos];
@@ -76,16 +81,26 @@ export function TodoProvider({children}:{children:React.ReactNode}) {
         dispatch({type:"LOADING"});
 
         try {
-            const todoData = await fetchTodos();
+            const todoData = await fetchTodosAPI();
+            // if fetch succeeded, session is valid
+            setIsAuthenticated(true);
             dispatch({ type: "FETCH", payload: todoData });
         } catch(error) {
             console.log(error);
+            // if 401, clear auth state
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            if ((error as any)?.response?.status === 401) {
+                setIsAuthenticated(false);
+                setUser(null);
+            }
             dispatch({type: "ERROR", payload:"Failed to fetch data"});
         }
     }
 
     useEffect(() => {
-        getTodo();
+        (async () => {
+            await getTodo();
+        })();
     }, []);
 
  
@@ -94,7 +109,7 @@ export function TodoProvider({children}:{children:React.ReactNode}) {
     const addTodo = async(title:string, tempId: string) => {
         dispatch({type: "LOADING"});   
         try {
-            const data = await createTodo(title);
+            const data = await createTodoAPI(title);
             dispatch({type: "REPLACE_TEMP_TODO", payload:{tempId, realTodo: data}});
             toast.success("Todo added successfully!");
         } catch (error) {
@@ -108,7 +123,7 @@ export function TodoProvider({children}:{children:React.ReactNode}) {
     const editTodo = async (id:string, title: string) => {
         dispatch({type: "LOADING"});
         try {
-            const data = await updateTodo(id, {title});
+            const data = await updateTodoAPI(id, {title});
             dispatch({type:"UPDATE", payload: data});
             toast.success("Updated successfully!")
         } catch(error) {
@@ -121,7 +136,7 @@ export function TodoProvider({children}:{children:React.ReactNode}) {
     const toggleTodo = async (id: string, isCompleted: boolean) => {
         dispatch({type:"LOADING"});
         try {
-            const data = await updateTodo(id, {completed: isCompleted});
+            const data = await updateTodoAPI(id, {completed: isCompleted});
             dispatch({type:"UPDATE", payload: data});
         } catch(error) {
             console.log(error);
@@ -133,7 +148,7 @@ export function TodoProvider({children}:{children:React.ReactNode}) {
     const deleteTodoItem = (id: string) => {
         dispatch({type: "LOADING"});
         try {
-            if(!id.includes("temp")) deleteTodo(id);
+            if(!id.includes("temp")) deleteTodoAPI(id);
             dispatch({type:"DELETE", payload:id});
             toast.success("Deleted successfully!");
         } catch(error) {
@@ -147,6 +162,33 @@ export function TodoProvider({children}:{children:React.ReactNode}) {
         const tempId = "temp-" + Math.random().toString(36).slice(2);
         payload._id = tempId;
         dispatch({type: "ADD_PENDING", payload});
+    }
+
+    // Auth helpers
+    const login = async (username: string, password: string) => {
+        try {
+            await apiLogin(username, password);
+            // server sets HTTP-only cookie; mark client as authenticated
+            setIsAuthenticated(true);
+            // server returns token in data.token but we keep user minimal for now
+            setUser({ username });
+            return true;
+        } catch (err) {
+            console.error('login failed', err);
+            return false;
+        }
+    }
+
+    const logout = async () => {
+        try {
+            await apiLogout();
+        } catch (err) {
+            console.error('logout failed', err);
+        }
+        setIsAuthenticated(false);
+        setUser(null);
+        // clear todos on logout
+        dispatch({ type: 'FETCH', payload: [] });
     }
 
     const applyFilters = (payload: Partial<FilterState>) => {
@@ -168,7 +210,11 @@ export function TodoProvider({children}:{children:React.ReactNode}) {
             deleteTodoItem,
             addPendingTodoItem,
             applyFilters,
-            applySorting
+            applySorting,
+            isAuthenticated,
+            user,
+            login,
+            logout
         }}>
             {children}
             <ToastContainer 

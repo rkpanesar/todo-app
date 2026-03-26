@@ -1,9 +1,13 @@
-import { useContext } from "react";
-import { TodoContext } from "../contexts/TodoContext";
+// import { useContext } from "react";
+// import { TodoContext } from "../contexts/TodoContext";
 import type { SortOption } from "../types/Todo";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../store/todoStore";
+import { applySorting } from "../contexts/todoSlice";
 
 const Sort = () => {
-    const {todoState, applySorting} = useContext(TodoContext);
+    const dispatch = useDispatch<AppDispatch>();
+    const todoState = useSelector((state: RootState) => state.todo);
     
     return (
         <div>
@@ -12,7 +16,7 @@ const Sort = () => {
                 name="sort" 
                 className="bg-black"
                 value={todoState.sort}
-                onChange={(e) => applySorting(e.target.value as SortOption)}
+                onChange={(e) => dispatch(applySorting(e.target.value as SortOption))}
             >
                 <option value="created-desc">Neweset</option>
                 <option value="created-asc">Oldest</option>
