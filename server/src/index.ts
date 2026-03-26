@@ -93,7 +93,8 @@ app.use("/todos", authenticate, todoRoutes);
 
 // Catch all handler: send back React's index.html file for client-side routing
 if (process.env.NODE_ENV === 'production') {
-  app.get('*', (req, res) => {
+  // Use path-based wildcard which is compatible with newer path-to-regexp used by Express 5
+  app.get('/*splat', (req, res) => {
     res.sendFile(path.join(__dirname, '../../client/dist/index.html'));
   });
 }
